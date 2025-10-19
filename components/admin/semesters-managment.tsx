@@ -87,7 +87,7 @@ export function SemestersManagement() {
   };
 
   const getYearName = (yearId: string) => {
-    return years?.data.find(y => y.id === yearId)?.name || 'N/A';
+    return years?.find(y => y.id === yearId)?.name || 'N/A';
   };
 
   if (isLoading) {
@@ -133,7 +133,7 @@ export function SemestersManagement() {
                     <SelectValue placeholder="Selecione o ano" />
                   </SelectTrigger>
                   <SelectContent>
-                    {years?.data.map(year => (
+                    {years?.map(year => (
                       <SelectItem key={year.id} value={year.id}>
                         {year.name}
                       </SelectItem>
@@ -155,7 +155,7 @@ export function SemestersManagement() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {semesters?.data.map(semester => (
+        {semesters?.map(semester => (
           <Card key={semester.id}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -215,7 +215,7 @@ export function SemestersManagement() {
                   <SelectValue placeholder="Selecione o ano" />
                 </SelectTrigger>
                 <SelectContent>
-                  {years?.data.map(year => (
+                  {years?.map(year => (
                     <SelectItem key={year.id} value={year.id}>
                       {year.name}
                     </SelectItem>
