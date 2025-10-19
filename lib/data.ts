@@ -1,0 +1,291 @@
+import type { AcademicYear } from "./types"
+
+export const mockAcademicStructure: AcademicYear[] = [
+  {
+    id: "1",
+    year: 1,
+    name: "1º Ano",
+    semesters: [
+      {
+        id: "1-1",
+        number: 1,
+        name: "1º Semestre",
+        subjects: [
+          {
+            id: "math1",
+            name: "Matemática I",
+            code: "MAT101",
+            credits: 6,
+            materials: [],
+          },
+          {
+            id: "prog1",
+            name: "Programação I",
+            code: "PRG101",
+            credits: 6,
+            materials: [],
+          },
+          {
+            id: "physics1",
+            name: "Física I",
+            code: "FIS101",
+            credits: 5,
+            materials: [],
+          },
+          {
+            id: "intro-eng",
+            name: "Introdução à Engenharia",
+            code: "ENG101",
+            credits: 4,
+            materials: [],
+          },
+        ],
+      },
+      {
+        id: "1-2",
+        number: 2,
+        name: "2º Semestre",
+        subjects: [
+          {
+            id: "math2",
+            name: "Matemática II",
+            code: "MAT102",
+            credits: 6,
+            materials: [],
+          },
+          {
+            id: "prog2",
+            name: "Programação II",
+            code: "PRG102",
+            credits: 6,
+            materials: [],
+          },
+          {
+            id: "physics2",
+            name: "Física II",
+            code: "FIS102",
+            credits: 5,
+            materials: [],
+          },
+          {
+            id: "logic",
+            name: "Lógica Matemática",
+            code: "LOG101",
+            credits: 4,
+            materials: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "2",
+    year: 2,
+    name: "2º Ano",
+    semesters: [
+      {
+        id: "2-1",
+        number: 1,
+        name: "1º Semestre",
+        subjects: [
+          {
+            id: "data-struct",
+            name: "Estruturas de Dados",
+            code: "EDA201",
+            credits: 6,
+            materials: [],
+          },
+          {
+            id: "databases1",
+            name: "Bases de Dados I",
+            code: "BDA201",
+            credits: 6,
+            materials: [],
+          },
+          {
+            id: "networks1",
+            name: "Redes de Computadores I",
+            code: "RDC201",
+            credits: 5,
+            materials: [],
+          },
+          {
+            id: "stats",
+            name: "Estatística",
+            code: "EST201",
+            credits: 4,
+            materials: [],
+          },
+        ],
+      },
+      {
+        id: "2-2",
+        number: 2,
+        name: "2º Semestre",
+        subjects: [
+          {
+            id: "algorithms",
+            name: "Algoritmos",
+            code: "ALG201",
+            credits: 6,
+            materials: [],
+          },
+          {
+            id: "databases2",
+            name: "Bases de Dados II",
+            code: "BDA202",
+            credits: 6,
+            materials: [],
+          },
+          {
+            id: "networks2",
+            name: "Redes de Computadores II",
+            code: "RDC202",
+            credits: 5,
+            materials: [],
+          },
+          {
+            id: "web-dev",
+            name: "Desenvolvimento Web",
+            code: "DWB201",
+            credits: 5,
+            materials: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "3",
+    year: 3,
+    name: "3º Ano",
+    semesters: [
+      {
+        id: "3-1",
+        number: 1,
+        name: "1º Semestre",
+        subjects: [
+          {
+            id: "software-eng",
+            name: "Engenharia de Software",
+            code: "ESW301",
+            credits: 6,
+            materials: [],
+          },
+          {
+            id: "systems-analysis",
+            name: "Análise de Sistemas",
+            code: "ASI301",
+            credits: 6,
+            materials: [],
+          },
+          {
+            id: "security",
+            name: "Segurança Informática",
+            code: "SEG301",
+            credits: 5,
+            materials: [],
+          },
+          {
+            id: "mobile-dev",
+            name: "Desenvolvimento Mobile",
+            code: "DMB301",
+            credits: 5,
+            materials: [],
+          },
+        ],
+      },
+      {
+        id: "3-2",
+        number: 2,
+        name: "2º Semestre",
+        subjects: [
+          {
+            id: "project-mgmt",
+            name: "Gestão de Projectos",
+            code: "GPR301",
+            credits: 5,
+            materials: [],
+          },
+          {
+            id: "ai-intro",
+            name: "Introdução à IA",
+            code: "IAI301",
+            credits: 6,
+            materials: [],
+          },
+          {
+            id: "distributed-sys",
+            name: "Sistemas Distribuídos",
+            code: "SDS301",
+            credits: 6,
+            materials: [],
+          },
+          {
+            id: "hci",
+            name: "Interação Humano-Computador",
+            code: "IHC301",
+            credits: 4,
+            materials: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "4",
+    year: 4,
+    name: "4º Ano",
+    semesters: [
+      {
+        id: "4-1",
+        number: 1,
+        name: "1º Semestre",
+        subjects: [
+          {
+            id: "thesis-prep",
+            name: "Preparação de Tese",
+            code: "PTE401",
+            credits: 8,
+            materials: [],
+          },
+          {
+            id: "advanced-topics",
+            name: "Tópicos Avançados",
+            code: "TAV401",
+            credits: 6,
+            materials: [],
+          },
+          {
+            id: "internship",
+            name: "Estágio Profissional",
+            code: "EST401",
+            credits: 8,
+            materials: [],
+          },
+        ],
+      },
+      {
+        id: "4-2",
+        number: 2,
+        name: "2º Semestre",
+        subjects: [
+          {
+            id: "thesis",
+            name: "Tese de Licenciatura",
+            code: "TES401",
+            credits: 15,
+            materials: [],
+          },
+          {
+            id: "seminar",
+            name: "Seminário",
+            code: "SEM401",
+            credits: 3,
+            materials: [],
+          },
+        ],
+      },
+    ],
+  },
+]
