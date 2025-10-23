@@ -135,7 +135,7 @@ export interface RegisterRequest {
   fullName: string;
   email: string;
   password: string;
-  code: string;
+  role: string;
 }
 
 export interface AuthResponse {
@@ -151,6 +151,24 @@ export interface AuthResponse {
     updatedAt: string;
     role: 'USER' | 'ADMIN';
     code: string;
+  };
+}
+
+export interface RegisterResponse {
+  statusCode: number;
+  message: string;
+  data: {
+    token: string;
+    user: {
+      id: string;
+      fullName: string;
+      email: string;
+      status: boolean;
+      createdAt: string;
+      updatedAt: string;
+      role: 'USER' | 'ADMIN';
+      code: string;
+    };
   };
 }
 

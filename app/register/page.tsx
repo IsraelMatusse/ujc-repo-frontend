@@ -27,30 +27,30 @@ export default function RegisterPage() {
     e.preventDefault()
     setError("")
 
-    if (!fullName || !email || !code || !password || !confirmPassword) {
-      setError("Por favor, preencha todos os campos")
-      return
+    if (!fullName || !email || !password || !confirmPassword) {
+      setError('Por favor, preencha todos os campos');
+      return;
     }
 
     if (password !== confirmPassword) {
-      setError("As senhas não coincidem")
-      return
+      setError('As senhas não coincidem');
+      return;
     }
 
     if (password.length < 6) {
-      setError("A senha deve ter pelo menos 6 caracteres")
-      return
+      setError('A senha deve ter pelo menos 6 caracteres');
+      return;
     }
 
     try {
-      const success = await register(fullName, email, password, code)
+      const success = await register(fullName, email, password, 'USER');
       if (success) {
-        router.push("/")
+        router.push('/');
       } else {
-        setError("Erro ao criar conta")
+        setError('Erro ao criar conta');
       }
     } catch (err) {
-      setError("Erro ao registrar. Tente novamente.")
+      setError('Erro ao registrar. Tente novamente.');
     }
   }
 
@@ -59,8 +59,14 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="bg-blue-600 p-3 rounded-lg">
-              <GraduationCap className="h-8 w-8 text-white" />
+            <div className="p-3 rounded-lg ">
+              <img
+                src="ujc-logo.png"
+                alt="CIDOC Logo"
+                width={180}
+                height={180}
+                className="object-contain"
+              />
             </div>
           </div>
           <CardTitle className="text-2xl">Criar Conta</CardTitle>
@@ -75,7 +81,7 @@ export default function RegisterPage() {
                 type="text"
                 placeholder="Seu nome completo"
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={e => setFullName(e.target.value)}
                 disabled={isLoading}
               />
             </div>
@@ -86,18 +92,7 @@ export default function RegisterPage() {
                 type="email"
                 placeholder="seu.email@ujc.ac.mz"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="code">Código de Estudante</Label>
-              <Input
-                id="code"
-                type="text"
-                placeholder="Ex: 20259333"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 disabled={isLoading}
               />
             </div>
@@ -108,7 +103,7 @@ export default function RegisterPage() {
                 type="password"
                 placeholder="Mínimo 6 caracteres"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 disabled={isLoading}
               />
             </div>
@@ -119,7 +114,7 @@ export default function RegisterPage() {
                 type="password"
                 placeholder="Digite a senha novamente"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={e => setConfirmPassword(e.target.value)}
                 disabled={isLoading}
               />
             </div>
@@ -137,14 +132,14 @@ export default function RegisterPage() {
                   Criando conta...
                 </>
               ) : (
-                "Criar Conta"
+                'Criar Conta'
               )}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm">
             <p className="text-gray-600 dark:text-gray-400">
-              Já tem uma conta?{" "}
+              Já tem uma conta?{' '}
               <Link href="/login" className="text-blue-600 hover:underline">
                 Faça login aqui
               </Link>
@@ -159,5 +154,5 @@ export default function RegisterPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

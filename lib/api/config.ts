@@ -2,32 +2,32 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost
 
 export const API_ENDPOINTS = {
   // Auth
-  LOGIN: "/auth/login",
-  REGISTER: "/auth/register",
-
+  LOGIN: '/auth/login',
+  REGISTER: '/users',
+  LOGOUT: '/auth/logout',
   // Years
-  YEARS: "/years",
+  YEARS: '/years',
   YEAR_BY_ID: (id: string) => `/years/${id}`,
 
   // Semesters
-  SEMESTERS: "/semesters",
+  SEMESTERS: '/semesters',
   SEMESTER_BY_ID: (id: string) => `/semesters/${id}`,
 
   // Courses
-  COURSES: "/courses",
+  COURSES: '/courses',
   COURSE_BY_ID: (id: string) => `/courses/${id}`,
 
   // Subjects
-  SUBJECTS: "/subjects",
+  SUBJECTS: '/subjects',
   SUBJECT_BY_ID: (id: string) => `/subjects/${id}`,
   SUBJECTS_BY_COURSE: (courseId: string) => `/subjects/course/${courseId}`,
 
   // Materials
-  MATERIALS: "/materials",
+  MATERIALS: '/materials',
   MATERIAL_BY_ID: (id: string) => `/materials/${id}`,
   MATERIALS_BY_SUBJECT: (subjectId: string) => `/materials/subject/${subjectId}`,
-  UPLOAD_MATERIAL: "/materials/upload",
-}
+  UPLOAD_MATERIAL: '/materials/upload',
+};
 
 export async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`
