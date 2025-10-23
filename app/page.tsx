@@ -13,8 +13,8 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="flex items-center gap-3">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <GraduationCap className="h-6 w-6 text-white" />
+              <div className="p-2 rounded-lg">
+                <img src="ujc-logo.png" alt="" height={50} width={50} />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">Repositório UJC</h1>
@@ -124,8 +124,8 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="bg-blue-600 p-2 rounded-lg">
-                  <GraduationCap className="h-6 w-6 text-white" />
+                <div className=" p-2 rounded-lg">
+                  <img src="ujc-logo.png" alt="" height={50} width={50} />
                 </div>
                 <div>
                   <h4 className="font-bold">Repositório UJC</h4>
@@ -189,7 +189,10 @@ export default function HomePage() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2024 Universidade Joaquim Chissano. Todos os direitos reservados.</p>
+            <p>
+              &copy; {new Date().getFullYear()} Universidade Joaquim Chissano. Todos os direitos
+              reservados.
+            </p>
           </div>
         </div>
       </footer>
