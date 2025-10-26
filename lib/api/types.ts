@@ -186,3 +186,43 @@ export interface ApiResponse<T> {
   message: string;
   data: T;
 }
+
+export interface UpdateEmailRequest {
+  email: string;
+}
+
+export interface UpdatePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface VerifyOtpRequest {
+  email: string;
+  otp: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  otp: string;
+  newPassword: string;
+}
+export interface UserStatsResponse {
+  totalUploads: number;
+  totalDownloads: number;
+  recentActivity: Array<{
+    id: string;
+    type: string;
+    description: string;
+    createdAt: string;
+  }>;
+}
+export interface GenereicStats {
+  users: number;
+  materials: number;
+  courses: number;
+  subjects: number;
+}

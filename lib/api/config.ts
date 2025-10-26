@@ -5,6 +5,10 @@ export const API_ENDPOINTS = {
   LOGIN: '/auth/login',
   REGISTER: '/users',
   LOGOUT: '/auth/logout',
+  FORGOT_PASSWORD: '/auth/forgot-password',
+  VERIFY_OTP: '/auth/verify-otp',
+  RESET_PASSWORD: '/auth/reset-password',
+
   // Years
   YEARS: '/years',
   YEAR_BY_ID: (id: string) => `/years/${id}`,
@@ -27,6 +31,12 @@ export const API_ENDPOINTS = {
   MATERIAL_BY_ID: (id: string) => `/materials/${id}`,
   MATERIALS_BY_SUBJECT: (subjectId: string) => `/materials/subject/${subjectId}`,
   UPLOAD_MATERIAL: '/materials/upload',
+
+  UPDATE_EMAIL: '/users/email',
+  UPDATE_PASSWORD: '/users/password',
+  USER_STATS: '/users/stats',
+
+  GET_GENERIC_STATS: '/stats',
 };
 
 export async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T> {

@@ -1,11 +1,16 @@
-import { BookOpen, Upload, Download, Users, GraduationCap, FileText } from 'lucide-react';
+'use client';
+
+import { BookOpen, Upload, Download, Users, GraduationCap, FileText, Book } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AuthHeader } from '@/components/auth-header';
 import Link from 'next/link';
+import { useStats } from '@/hooks/use-stats';
 
 export default function HomePage() {
+  const { data: stats, isLoading } = useStats();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
@@ -66,29 +71,37 @@ export default function HomePage() {
             <Card className="text-center">
               <CardContent className="pt-6">
                 <FileText className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">150+</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {stats?.materials}
+                </div>
                 <p className="text-gray-600 dark:text-gray-400">Documentos</p>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="pt-6">
                 <BookOpen className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">25</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {stats?.subjects}
+                </div>
                 <p className="text-gray-600 dark:text-gray-400">Disciplinas</p>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="pt-6">
                 <Users className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">500+</div>
-                <p className="text-gray-600 dark:text-gray-400">Estudantes</p>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {stats?.users}
+                </div>
+                <p className="text-gray-600 dark:text-gray-400">Usuários</p>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="pt-6">
-                <Download className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">1.2K</div>
-                <p className="text-gray-600 dark:text-gray-400">Downloads</p>
+                <Book className="h-8 w-8 text-orange-600 mx-auto mb-2" />
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {stats?.courses}
+                </div>
+                <p className="text-gray-600 dark:text-gray-400">Cursos</p>
               </CardContent>
             </Card>
           </div>

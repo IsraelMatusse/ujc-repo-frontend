@@ -46,8 +46,14 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="bg-blue-600 p-3 rounded-lg">
-              <GraduationCap className="h-8 w-8 text-white" />
+            <div className="p-3 rounded-lg">
+              <img
+                src="ujc-logo.png"
+                alt="CIDOC Logo"
+                width={140}
+                height={140}
+                className="object-contain"
+              />
             </div>
           </div>
           <CardTitle className="text-2xl">Entrar no Sistema</CardTitle>
@@ -62,18 +68,23 @@ export default function LoginPage() {
                 type="email"
                 placeholder="seu.email@ujc.ac.mz"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Senha</Label>
+                <Link href="/forgot-password" className="text-xs text-blue-600 hover:underline">
+                  Esqueceu a senha?
+                </Link>
+              </div>
               <Input
                 id="password"
                 type="password"
                 placeholder="Digite sua senha"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 disabled={isLoading}
               />
             </div>
@@ -91,14 +102,14 @@ export default function LoginPage() {
                   Entrando...
                 </>
               ) : (
-                "Entrar"
+                'Entrar'
               )}
             </Button>
           </form>
 
           <div className="mt-6 text-center text-sm">
             <p className="text-gray-600 dark:text-gray-400">
-              Não tem uma conta?{" "}
+              Não tem uma conta?{' '}
               <Link href="/register" className="text-blue-600 hover:underline">
                 Registre-se aqui
               </Link>
@@ -113,5 +124,5 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
