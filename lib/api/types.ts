@@ -179,6 +179,8 @@ export interface User {
   role: 'USER' | 'ADMIN';
   code: string;
   status: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ApiResponse<T> {

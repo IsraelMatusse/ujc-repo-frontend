@@ -45,6 +45,8 @@ export interface User {
   fullName: string;
   code: string;
   status: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UploadRequest {

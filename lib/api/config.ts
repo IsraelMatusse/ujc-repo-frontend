@@ -9,6 +9,11 @@ export const API_ENDPOINTS = {
   VERIFY_OTP: '/auth/verify-otp',
   RESET_PASSWORD: '/auth/reset-password',
 
+  //users
+
+  USER_BY_ID: (id: string) => `/users/${id}`,
+  USERS: '/users',
+
   // Years
   YEARS: '/years',
   YEAR_BY_ID: (id: string) => `/years/${id}`,
@@ -37,6 +42,8 @@ export const API_ENDPOINTS = {
   USER_STATS: '/users/stats',
 
   GET_GENERIC_STATS: '/stats',
+  ADMIN_STATS: '/admin/stats',
+  ADMIN_UPLOADS: '/admin/uploads',
 };
 
 export async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T> {
