@@ -9,7 +9,7 @@ import type {
 export const userService = {
   updateEmail: async (data: UpdateEmailRequest): Promise<ApiResponse<any>> => {
     return apiRequest<ApiResponse<any>>(API_ENDPOINTS.UPDATE_EMAIL, {
-      method: 'PUT',
+      method: 'PATCH',
       body: JSON.stringify(data),
     });
   },
