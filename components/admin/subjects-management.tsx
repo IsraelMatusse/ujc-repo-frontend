@@ -31,6 +31,16 @@ import { useCourses } from '@/hooks/use-courses';
 import { useSemesters } from '@/hooks/use-semesters';
 import { toast } from 'sonner';
 import type { SubjectRequestData } from '@/lib/api/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export function SubjectsManagement() {
   const { data: subjects, isLoading } = useSubjects();
@@ -55,6 +65,7 @@ export function SubjectsManagement() {
     courseId: '',
     semesterId: '',
   });
+  const [subjectToDelete, setSubjectToDelete] = useState<string | null>(null);
 
   const handleCreate = async () => {
     try {
@@ -79,13 +90,13 @@ export function SubjectsManagement() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir esta disciplina?')) return;
+  const handleDelete = async () => {
+    if (!subjectToDelete) return;
     try {
-      await deleteSubject.mutateAsync(id);
-      toast.success('Disciplina excluída com sucesso!');
+      await deleteSubject.mutateAsync(subjectToDelete);
+      setSubjectToDelete(null);
     } catch (error) {
-      toast.error('Erro ao excluir disciplina');
+      // Error handled by hook
     }
   };
 
@@ -129,7 +140,7 @@ export function SubjectsManagement() {
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="bg-blue-600 hover:bg-blue-700">
               <Plus className="h-4 w-4 mr-2" />
               Nova Disciplina
             </Button>
@@ -215,7 +226,7 @@ export function SubjectsManagement() {
           <Card key={subject.id}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
+                <BookOpen className="h-5 w-5 text-blue-600" />
                 {subject.name}
               </CardTitle>
               <CardDescription>
@@ -225,10 +236,20 @@ export function SubjectsManagement() {
             </CardHeader>
             <CardContent>
               <div className="flex justify-end gap-2">
-                <Button variant="ghost" size="sm" onClick={() => openEditDialog(subject)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openEditDialog(subject)}
+                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                >
                   <Edit className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => handleDelete(subject.id)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSubjectToDelete(subject.id)}
+                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -325,6 +346,25 @@ export function SubjectsManagement() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!subjectToDelete} onOpenChange={() => setSubjectToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. A disciplina será permanentemente removida do
+              sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Deletar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

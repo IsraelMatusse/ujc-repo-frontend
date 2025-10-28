@@ -87,14 +87,13 @@ export default function MaterialsPage() {
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-blue-100 dark:bg-blue-900">
               <TableRow>
                 <TableHead>Título</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead>Disciplina</TableHead>
                 <TableHead>Autor</TableHead>
                 <TableHead>Data</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -108,11 +107,6 @@ export default function MaterialsPage() {
                   <TableCell>{material.subject}</TableCell>
                   <TableCell>{material.author || 'Anônimo'}</TableCell>
                   <TableCell>{material.createdAt}</TableCell>
-                  <TableCell>
-                    <Badge variant={material.status ? 'default' : 'destructive'}>
-                      {material.status ? 'Ativo' : 'Inativo'}
-                    </Badge>
-                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Button variant="ghost" size="sm" asChild>

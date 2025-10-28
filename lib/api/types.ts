@@ -107,6 +107,12 @@ export interface MaterialResponse {
   createdAt: string;
   status: boolean;
   subject: string;
+  subjectId: string;
+  couseId: string;
+  semesterId: string;
+  semester: string;
+  yearId: string;
+  year: string;
 }
 
 export interface YearWithSemester {

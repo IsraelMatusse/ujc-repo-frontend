@@ -1,6 +1,6 @@
 'use client';
 
-import { use } from 'react';
+import { use, useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,14 @@ import { ArrowLeft, Calendar, BookOpen, FileText, Download, User, Clock } from '
 import Link from 'next/link';
 import { useCourseDetails } from '@/hooks/use-courses';
 import { MaterialType } from '@/lib/api/types';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Filter, X } from 'lucide-react';
 
 const materialTypeLabels: Record<MaterialType, string> = {
   [MaterialType.FICHA]: 'Ficha',
@@ -39,6 +47,89 @@ const materialTypeColors: Record<MaterialType, string> = {
 export default function CoursePage({ params }: { params: Promise<{ courseId: string }> }) {
   const { courseId } = use(params);
   const { data: courseDetails, isLoading } = useCourseDetails(courseId);
+
+  const [selectedYear, setSelectedYear] = useState<string>('all');
+  const [selectedSemester, setSelectedSemester] = useState<string>('all');
+  const [selectedSubject, setSelectedSubject] = useState<string>('all');
+
+  const filteredYears = useMemo(() => {
+    if (!courseDetails) return [];
+    if (selectedYear === 'all') return courseDetails.years;
+    return courseDetails.years.filter(y => y.name === selectedYear);
+  }, [courseDetails, selectedYear]);
+
+  const filteredSubjects = useMemo(() => {
+    if (!courseDetails) return [];
+    let subjects = courseDetails.subjects;
+
+    if (selectedYear !== 'all') {
+      const year = courseDetails.years.find(y => y.name === selectedYear);
+      if (year) {
+        const semesterIds = year.semesters.map(s => s.id);
+        subjects = subjects.filter(s => semesterIds.includes(s.semesterId));
+      }
+    }
+
+    if (selectedSemester !== 'all') {
+      subjects = subjects.filter(s => s.semesterId === selectedSemester);
+    }
+
+    if (selectedSubject !== 'all') {
+      subjects = subjects.filter(s => s.id === selectedSubject);
+    }
+
+    return subjects;
+  }, [courseDetails, selectedYear, selectedSemester, selectedSubject]);
+
+  const filteredMaterials = useMemo(() => {
+    if (!courseDetails) return [];
+    let materials = courseDetails.material;
+
+    if (selectedYear !== 'all') {
+      materials = materials.filter(m => m.year === selectedYear);
+    }
+
+    if (selectedSemester !== 'all') {
+      const semester = courseDetails.years
+        .flatMap(y => y.semesters)
+        .find(s => s.id === selectedSemester);
+      if (semester) {
+        materials = materials.filter(m => m.semester === semester.name);
+      }
+    }
+
+    if (selectedSubject !== 'all') {
+      const subject = courseDetails.subjects.find(s => s.id === selectedSubject);
+      if (subject) {
+        materials = materials.filter(m => m.subject === subject.name);
+      }
+    }
+
+    return materials;
+  }, [courseDetails, selectedYear, selectedSemester, selectedSubject]);
+
+  const availableSemesters = useMemo(() => {
+    if (!courseDetails || selectedYear === 'all') return [];
+    const year = courseDetails.years.find(y => y.name === selectedYear);
+    return year?.semesters || [];
+  }, [courseDetails, selectedYear]);
+
+  const availableSubjects = useMemo(() => {
+    if (!courseDetails || selectedSemester === 'all') return [];
+    const semester = courseDetails.years
+      .flatMap(y => y.semesters)
+      .find(s => s.id === selectedSemester);
+    return courseDetails.subjects.filter(s => s.semesterId === semester?.id) || [];
+  }, [courseDetails, selectedSemester]);
+
+  const resetFilters = () => {
+    setSelectedYear('all');
+    setSelectedSemester('all');
+    setSelectedSubject('all');
+  };
+
+  const hasActiveFilters =
+    selectedYear !== 'all' || selectedSemester !== 'all' || selectedSubject !== 'all';
 
   if (isLoading) {
     return (
@@ -93,15 +184,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 {courseDetails.name}
               </h1>
-              <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
-                <span className="flex items-center gap-1">
-                  <BookOpen className="h-4 w-4" />
-                  Código: {courseDetails.code}
-                </span>
-                <Badge variant={courseDetails.status ? 'default' : 'secondary'}>
-                  {courseDetails.status ? 'Ativo' : 'Inativo'}
-                </Badge>
-              </div>
+              <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300"></div>
             </div>
             <div className="text-right">
               <div className="text-sm text-gray-600 dark:text-gray-400">Total de Material</div>
@@ -114,33 +197,118 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Card className="mb-6">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Filter className="h-5 w-5 text-blue-600" />
+                <CardTitle>Filtros</CardTitle>
+              </div>
+              {hasActiveFilters && (
+                <Button variant="ghost" size="sm" onClick={resetFilters} className="text-blue-600">
+                  <X className="h-4 w-4 mr-2" />
+                  Limpar Filtros
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Ano</label>
+                <Select
+                  value={selectedYear}
+                  onValueChange={value => {
+                    setSelectedYear(value);
+                    setSelectedSemester('all');
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todos os anos" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os anos</SelectItem>
+                    {courseDetails?.years.map(year => (
+                      <SelectItem key={year.code} value={year.name}>
+                        {year.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Semestre</label>
+                <Select
+                  value={selectedSemester}
+                  onValueChange={setSelectedSemester}
+                  disabled={selectedYear === 'all'}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todos os semestres" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos os semestres</SelectItem>
+                    {availableSemesters.map(semester => (
+                      <SelectItem key={semester.id} value={semester.id}>
+                        {semester.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Disciplina</label>
+                <Select
+                  value={selectedSubject}
+                  onValueChange={setSelectedSubject}
+                  disabled={selectedSemester === 'all'}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Todas as disciplinas" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todas as disciplinas</SelectItem>
+                    {availableSubjects?.map(subject => (
+                      <SelectItem key={subject.id} value={subject.id}>
+                        {subject.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Tabs defaultValue="structure" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="structure">Estrutura Acadêmica</TabsTrigger>
-            <TabsTrigger value="subjects">Disciplinas</TabsTrigger>
-            <TabsTrigger value="materials">Material ({courseDetails.material.length})</TabsTrigger>
+            <TabsTrigger value="subjects">Disciplinas </TabsTrigger>
+            <TabsTrigger value="materials">Material </TabsTrigger>
           </TabsList>
-
           {/* Structure Tab */}
           <TabsContent value="structure" className="space-y-6">
-            {courseDetails.years.length === 0 ? (
+            {filteredYears.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
                   <p className="text-gray-600 dark:text-gray-400">
-                    Nenhum ano acadêmico cadastrado para este curso
+                    {hasActiveFilters
+                      ? 'Nenhum resultado encontrado com os filtros aplicados'
+                      : 'Nenhum ano acadêmico cadastrado para este curso'}
                   </p>
                 </CardContent>
               </Card>
             ) : (
-              courseDetails.years.map(year => (
+              filteredYears.map(year => (
                 <Card key={year.code}>
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div>
                         <CardTitle className="text-2xl">{year.name}</CardTitle>
                         <CardDescription>
-                          {year.semesters.length} semestre{year.semesters.length !== 1 ? 's' : ''} •
-                          Código: {year.code}
+                          {year.semesters.length} semestre{year.semesters.length !== 1 ? 's' : ''}{' '}
                         </CardDescription>
                       </div>
                       <Badge variant="secondary" className="text-lg px-4 py-2">
@@ -151,10 +319,10 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                   <CardContent>
                     <div className="space-y-4">
                       {year.semesters.map(semester => {
-                        const semesterSubjects = courseDetails.subjects.filter(
+                        const semesterSubjects = filteredSubjects.filter(
                           s => s.semesterId === semester.id,
                         );
-                        const semesterMaterials = courseDetails.material.filter(
+                        const semesterMaterials = filteredMaterials.filter(
                           m => m.year === year.name && m.semester === semester.name,
                         );
 
@@ -173,7 +341,6 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                                   {semesterMaterials.length} materiais
                                 </Badge>
                               </div>
-                              <span className="text-sm text-gray-500">Código: {semester.code}</span>
                             </div>
 
                             {semesterSubjects.length === 0 ? (
@@ -183,7 +350,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                             ) : (
                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 ml-7">
                                 {semesterSubjects.map(subject => {
-                                  const subjectMaterials = courseDetails.material.filter(
+                                  const subjectMaterials = filteredMaterials.filter(
                                     m => m.subject === subject.name,
                                   );
                                   return (
@@ -205,7 +372,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                                           <FileText className="h-3 w-3" />
                                           <span>{subjectMaterials.length} materiais</span>
                                         </div>
-                                        <Button asChild size="sm" className="w-full">
+                                        <Button asChild size="sm" className="w-full bg-blue-600">
                                           <Link href={`/browse/subject/${subject.id}`}>
                                             Ver Material
                                           </Link>
@@ -225,21 +392,22 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
               ))
             )}
           </TabsContent>
-
           {/* Subjects Tab */}
           <TabsContent value="subjects">
-            {courseDetails.subjects.length === 0 ? (
+            {filteredSubjects.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
                   <p className="text-gray-600 dark:text-gray-400">
-                    Nenhuma disciplina cadastrada para este curso
+                    {hasActiveFilters
+                      ? 'Nenhuma disciplina encontrada com os filtros aplicados'
+                      : 'Nenhuma disciplina cadastrada para este curso'}
                   </p>
                 </CardContent>
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {courseDetails.subjects.map(subject => {
-                  const subjectMaterials = courseDetails.material.filter(
+                {filteredSubjects.map(subject => {
+                  const subjectMaterials = filteredMaterials.filter(
                     m => m.subject === subject.name,
                   );
                   return (
@@ -256,7 +424,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <Button asChild className="w-full">
+                        <Button asChild className="w-full bg-blue-600">
                           <Link href={`/browse/subject/${subject.id}`}>Ver Material</Link>
                         </Button>
                       </CardContent>
@@ -266,20 +434,21 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
               </div>
             )}
           </TabsContent>
-
           {/* Materials Tab */}
           <TabsContent value="materials">
-            {courseDetails.material.length === 0 ? (
+            {filteredMaterials.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
                   <p className="text-gray-600 dark:text-gray-400">
-                    Nenhum material disponível para este curso
+                    {hasActiveFilters
+                      ? 'Nenhum material encontrado com os filtros aplicados'
+                      : 'Nenhum material disponível para este curso'}
                   </p>
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-4">
-                {courseDetails.material.map(material => (
+                {filteredMaterials.map(material => (
                   <Card key={material.id} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between gap-4">
@@ -329,9 +498,9 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                           onClick={() =>
                             handleDownload(material.file.path, material.file.designation)
                           }
-                          className="flex-shrink-0"
+                          className="flex-shrink-0 bg-blue-600"
                         >
-                          <Download className="h-4 w-4 mr-2" />
+                          <Download className="h-4 w-4 mr-2 " />
                           Baixar
                         </Button>
                       </div>

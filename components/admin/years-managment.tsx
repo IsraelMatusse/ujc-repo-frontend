@@ -17,6 +17,16 @@ import { Plus, Edit, Trash2, Calendar } from 'lucide-react';
 import { useYears, useCreateYear, useUpdateYear, useDeleteYear } from '@/hooks/use-years';
 import { toast } from 'sonner';
 import type { YearCreationData } from '@/lib/api/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export function YearsManagement() {
   const { data: years, isLoading } = useYears();
@@ -32,6 +42,7 @@ export function YearsManagement() {
     order: number;
   } | null>(null);
   const [formData, setFormData] = useState<YearCreationData>({ name: '', order: 1 });
+  const [yearToDelete, setYearToDelete] = useState<string | null>(null);
 
   const handleCreate = async () => {
     try {
@@ -56,13 +67,13 @@ export function YearsManagement() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este ano acadêmico?')) return;
+  const handleDelete = async () => {
+    if (!yearToDelete) return;
     try {
-      await deleteYear.mutateAsync(id);
-      toast.success('Ano acadêmico excluído com sucesso!');
+      await deleteYear.mutateAsync(yearToDelete);
+      setYearToDelete(null);
     } catch (error) {
-      toast.error('Erro ao excluir ano acadêmico');
+      // Error handled by hook
     }
   };
 
@@ -85,7 +96,7 @@ export function YearsManagement() {
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="bg-blue-600 hover:bg-blue-700">
               <Plus className="h-4 w-4 mr-2" />
               Novo Ano
             </Button>
@@ -135,17 +146,27 @@ export function YearsManagement() {
           <Card key={year.id}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
+                <Calendar className="h-5 w-5 text-blue-600" />
                 {year.name}
               </CardTitle>
               <CardDescription>Ordem: {year.order}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex justify-end gap-2">
-                <Button variant="ghost" size="sm" onClick={() => openEditDialog(year)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openEditDialog(year)}
+                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                >
                   <Edit className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => handleDelete(year.id)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setYearToDelete(year.id)}
+                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -202,6 +223,24 @@ export function YearsManagement() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!yearToDelete} onOpenChange={() => setYearToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O ano acadêmico será permanentemente removido do
+              sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Deletar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

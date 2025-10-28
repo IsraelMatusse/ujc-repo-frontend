@@ -30,6 +30,16 @@ import {
 import { useYears } from '@/hooks/use-years';
 import { toast } from 'sonner';
 import type { SemesterCreationData } from '@/lib/api/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export function SemestersManagement() {
   const { data: semesters, isLoading } = useSemesters();
@@ -46,6 +56,7 @@ export function SemestersManagement() {
     yearId: string;
   } | null>(null);
   const [formData, setFormData] = useState<SemesterCreationData>({ name: '', yearId: '' });
+  const [semesterToDelete, setSemesterToDelete] = useState<string | null>(null);
 
   const handleCreate = async () => {
     try {
@@ -70,13 +81,13 @@ export function SemestersManagement() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este semestre?')) return;
+  const handleDelete = async () => {
+    if (!semesterToDelete) return;
     try {
-      await deleteSemester.mutateAsync(id);
-      toast.success('Semestre excluído com sucesso!');
+      await deleteSemester.mutateAsync(semesterToDelete);
+      setSemesterToDelete(null);
     } catch (error) {
-      toast.error('Erro ao excluir semestre');
+      // Error handled by hook
     }
   };
 
@@ -103,7 +114,7 @@ export function SemestersManagement() {
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="bg-blue-600 hover:bg-blue-700">
               <Plus className="h-4 w-4 mr-2" />
               Novo Semestre
             </Button>
@@ -159,17 +170,27 @@ export function SemestersManagement() {
           <Card key={semester.id}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Layers className="h-5 w-5" />
+                <Layers className="h-5 w-5 text-blue-600" />
                 {semester.name}
               </CardTitle>
               <CardDescription>Ano: {getYearName(semester.yearId)}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex justify-end gap-2">
-                <Button variant="ghost" size="sm" onClick={() => openEditDialog(semester)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openEditDialog(semester)}
+                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                >
                   <Edit className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => handleDelete(semester.id)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSemesterToDelete(semester.id)}
+                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                >
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
@@ -234,6 +255,24 @@ export function SemestersManagement() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!semesterToDelete} onOpenChange={() => setSemesterToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O semestre será permanentemente removido do sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Deletar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

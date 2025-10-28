@@ -13,10 +13,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, GraduationCap } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Plus, Edit, Trash2, GraduationCap, Eye } from 'lucide-react';
 import { useCourses, useCreateCourse, useUpdateCourse, useDeleteCourse } from '@/hooks/use-courses';
 import { toast } from 'sonner';
 import type { CourseRequest } from '@/lib/api/types';
+import Link from 'next/link';
 
 export function CoursesManagement() {
   const { data: courses, isLoading } = useCourses();
@@ -28,6 +39,7 @@ export function CoursesManagement() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<{ id: string; name: string } | null>(null);
   const [formData, setFormData] = useState<CourseRequest>({ name: '' });
+  const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
 
   const handleCreate = async () => {
     try {
@@ -52,13 +64,13 @@ export function CoursesManagement() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este curso?')) return;
+  const handleDelete = async () => {
+    if (!courseToDelete) return;
     try {
-      await deleteCourse.mutateAsync(id);
-      toast.success('Curso excluído com sucesso!');
+      await deleteCourse.mutateAsync(courseToDelete);
+      setCourseToDelete(null);
     } catch (error) {
-      toast.error('Erro ao excluir curso');
+      // Error handled by hook
     }
   };
 
@@ -81,7 +93,7 @@ export function CoursesManagement() {
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="bg-blue-600 hover:bg-blue-700">
               <Plus className="h-4 w-4 mr-2" />
               Novo Curso
             </Button>
@@ -119,18 +131,41 @@ export function CoursesManagement() {
           <Card key={course.id}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <GraduationCap className="h-5 w-5" />
+                <GraduationCap className="h-5 w-5 text-blue-600" />
                 {course.name}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex justify-end gap-2">
-                <Button variant="ghost" size="sm" onClick={() => openEditDialog(course)}>
-                  <Edit className="h-4 w-4" />
+              <div className="flex justify-between gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="border-blue-600 text-blue-600 hover:bg-blue-50 bg-transparent"
+                >
+                  <Link href={`/admin/courses/${course.id}`}>
+                    <Eye className="h-4 w-4 mr-2" />
+                    Ver Detalhes
+                  </Link>
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => handleDelete(course.id)}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => openEditDialog(course)}
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCourseToDelete(course.id)}
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -175,6 +210,24 @@ export function CoursesManagement() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!courseToDelete} onOpenChange={() => setCourseToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O curso será permanentemente removido do sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Deletar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
