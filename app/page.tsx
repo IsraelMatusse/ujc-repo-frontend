@@ -23,7 +23,7 @@ export default function HomePage() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">Repositório UJC</h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
+                <p className="text-sm text-gray-600 dark:text-gray-400 ">
                   Faculdade de Ciências e Tecnologias
                 </p>
               </div>

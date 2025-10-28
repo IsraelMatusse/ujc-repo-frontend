@@ -49,6 +49,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role: response.data.role,
         code: response.data.code,
         status: response.data.status,
+        createdAt: response.data.createdAt,
+        updatedAt: response.data.updatedAt,
       };
 
       setUser(userData);
@@ -81,6 +83,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role: response.data.user.role,
         code: response.data.user.code,
         status: response.data.user.status,
+        createdAt: response.data.user.createdAt,
+        updatedAt: response.data.user.updatedAt,
       };
 
       setUser(userData);

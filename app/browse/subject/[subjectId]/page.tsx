@@ -24,6 +24,7 @@ import {
 import Link from 'next/link';
 import { useSubject } from '@/hooks/use-subjects';
 import { useMaterialsBySubject } from '@/hooks/use-materials';
+import { getMaterialTypeColor, getMaterialTypeLabel } from '@/lib/utils/material-colors';
 
 interface SubjectPageProps {
   params: Promise<{ subjectId: string }>;
@@ -51,23 +52,6 @@ export default function SubjectPage({ params }: SubjectPageProps) {
       return <Video className="h-5 w-5 text-blue-600" />;
     }
     return <FileIcon className="h-5 w-5 text-gray-600" />;
-  };
-
-  const getMaterialTypeBadge = (type: string) => {
-    const badges: Record<string, { label: string; variant: 'default' | 'secondary' | 'outline' }> =
-      {
-        FICHA: { label: 'Ficha', variant: 'default' },
-        LIVRO: { label: 'Livro', variant: 'secondary' },
-        EBOOK: { label: 'E-book', variant: 'secondary' },
-        ARTIGO: { label: 'Artigo', variant: 'outline' },
-        VIDEO_AULA: { label: 'Vídeo Aula', variant: 'default' },
-        SLIDES: { label: 'Slides', variant: 'secondary' },
-        TESTE: { label: 'Teste', variant: 'default' },
-        EXERCICIOS: { label: 'Exercícios', variant: 'default' },
-        IMAGEM: { label: 'Imagem', variant: 'outline' },
-        OUTRO: { label: 'Outro', variant: 'outline' },
-      };
-    return badges[type] || badges.OUTRO;
   };
 
   const handleDownload = (material: any) => {
@@ -129,7 +113,10 @@ export default function SubjectPage({ params }: SubjectPageProps) {
         <div className="text-center">
           <p className="text-gray-600 dark:text-gray-400 mb-4">Disciplina não encontrada</p>
           <Button asChild>
-            <Link href="/browse">Voltar</Link>
+            <Link href="/browse">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar
+            </Link>
           </Button>
         </div>
       </div>
@@ -140,31 +127,33 @@ export default function SubjectPage({ params }: SubjectPageProps) {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
       <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-4 mb-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex items-center gap-2 sm:gap-4 mb-4">
             <Button variant="ghost" size="sm" asChild>
               <Link href="/browse">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Voltar
+                <span className="hidden sm:inline">Voltar</span>
               </Link>
             </Button>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="bg-blue-600 p-3 rounded-lg">
                 <BookOpen className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{subject.name}</h1>
-                <p className="text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                  {subject.name}
+                </h1>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 flex items-center gap-2">
                   <span>{subject.credits} créditos</span>
                   <span>•</span>
                   <span>{materials.length} documentos</span>
                 </p>
               </div>
             </div>
-            <Button asChild>
+            <Button asChild className="w-full sm:w-auto">
               <Link href="/upload">
                 <Upload className="h-4 w-4 mr-2" />
                 Contribuir
@@ -174,7 +163,7 @@ export default function SubjectPage({ params }: SubjectPageProps) {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Search and Filters */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <div className="flex-1 relative">
@@ -191,20 +180,25 @@ export default function SubjectPage({ params }: SubjectPageProps) {
         {/* Bulk Actions Bar */}
         {selectedMaterials.length > 0 && (
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <CheckCircle className="h-5 w-5 text-blue-600" />
                 <span className="font-medium text-blue-900 dark:text-blue-100">
                   {selectedMaterials.length} arquivo(s) selecionado(s)
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => setSelectedMaterials([])}>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedMaterials([])}
+                  className="flex-1 sm:flex-none"
+                >
                   Limpar
                 </Button>
-                <Button size="sm" onClick={handleBulkDownload}>
+                <Button size="sm" onClick={handleBulkDownload} className="flex-1 sm:flex-none">
                   <Download className="h-4 w-4 mr-2" />
-                  Baixar Selecionados
+                  Baixar
                 </Button>
               </div>
             </div>
@@ -213,11 +207,11 @@ export default function SubjectPage({ params }: SubjectPageProps) {
 
         {/* Material Tabs */}
         <Tabs defaultValue="all" className="space-y-6">
-          <TabsList>
+          <TabsList className="flex-wrap h-auto gap-2">
             <TabsTrigger value="all">Todos ({filteredMaterials.length})</TabsTrigger>
             {Object.keys(materialsByType).map(type => (
               <TabsTrigger key={type} value={type}>
-                {getMaterialTypeBadge(type).label} ({materialsByType[type].length})
+                {getMaterialTypeLabel(type as any)} ({materialsByType[type].length})
               </TabsTrigger>
             ))}
           </TabsList>
@@ -257,54 +251,61 @@ export default function SubjectPage({ params }: SubjectPageProps) {
               </div>
             ) : (
               filteredMaterials.map((material: any) => {
-                const typeBadge = getMaterialTypeBadge(material.type);
+                const colors = getMaterialTypeColor(material.type);
+                const label = getMaterialTypeLabel(material.type);
                 return (
                   <Card key={material.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex flex-col sm:flex-row items-start gap-4">
                         <Checkbox
                           checked={selectedMaterials.includes(material.id)}
                           onCheckedChange={() => toggleMaterialSelection(material.id)}
                           className="mt-1"
                         />
 
-                        <div className="flex items-start gap-4 flex-1">
-                          <div className="mt-1">{getFileIcon(material.file.type)}</div>
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between mb-2">
-                              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        <div className="flex items-start gap-4 flex-1 w-full">
+                          <div className="mt-1 hidden sm:block">
+                            {getFileIcon(material.file.type)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-col sm:flex-row items-start justify-between gap-2 mb-2">
+                              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white break-words">
                                 {material.title}
                               </h3>
-                              <Badge variant={typeBadge.variant}>{typeBadge.label}</Badge>
+                              <Badge className={`${colors.badge} whitespace-nowrap`}>{label}</Badge>
                             </div>
 
                             {material.description && (
-                              <p className="text-gray-600 dark:text-gray-300 mb-3">
+                              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-3">
                                 {material.description}
                               </p>
                             )}
 
-                            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                            <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                               {material.author && (
                                 <div className="flex items-center gap-1">
-                                  <User className="h-4 w-4" />
-                                  <span>{material.author}</span>
+                                  <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                                  <span className="truncate">{material.author}</span>
                                 </div>
                               )}
                               <div className="flex items-center gap-1">
-                                <Calendar className="h-4 w-4" />
+                                <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                                 <span>{material.createdAt}</span>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <FileIcon className="h-4 w-4" />
-                                <span>{material.file.designation}</span>
+                              <div className="flex items-center gap-1 truncate">
+                                <FileIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <span className="truncate">{material.file.designation}</span>
                               </div>
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 ml-4">
-                          <Button size="sm" onClick={() => handleDownload(material)}>
+                        <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-4">
+                          <Button
+                            size="sm"
+                            onClick={() => handleDownload(material)}
+                            className={`flex-1 sm:flex-none ${colors.button}`}
+                          >
                             <Download className="h-4 w-4 mr-2" />
                             Baixar
                           </Button>
@@ -321,41 +322,48 @@ export default function SubjectPage({ params }: SubjectPageProps) {
           {Object.keys(materialsByType).map(type => (
             <TabsContent key={type} value={type} className="space-y-4">
               {materialsByType[type].map((material: any) => {
-                const typeBadge = getMaterialTypeBadge(material.type);
+                const colors = getMaterialTypeColor(material.type);
+                const label = getMaterialTypeLabel(material.type);
                 return (
                   <Card key={material.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
-                        <div className="mt-1">{getFileIcon(material.file.type)}</div>
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="flex flex-col sm:flex-row items-start gap-4">
+                        <div className="mt-1 hidden sm:block">
+                          {getFileIcon(material.file.type)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row items-start justify-between gap-2 mb-2">
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white break-words">
                               {material.title}
                             </h3>
-                            <Badge variant={typeBadge.variant}>{typeBadge.label}</Badge>
+                            <Badge className={`${colors.badge} whitespace-nowrap`}>{label}</Badge>
                           </div>
 
                           {material.description && (
-                            <p className="text-gray-600 dark:text-gray-300 mb-3">
+                            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-3">
                               {material.description}
                             </p>
                           )}
 
-                          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                             {material.author && (
                               <div className="flex items-center gap-1">
-                                <User className="h-4 w-4" />
-                                <span>{material.author}</span>
+                                <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <span className="truncate">{material.author}</span>
                               </div>
                             )}
                             <div className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
+                              <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                               <span>{material.createdAt}</span>
                             </div>
                           </div>
                         </div>
 
-                        <Button size="sm" onClick={() => handleDownload(material)}>
+                        <Button
+                          size="sm"
+                          onClick={() => handleDownload(material)}
+                          className={`w-full sm:w-auto ${colors.button}`}
+                        >
                           <Download className="h-4 w-4 mr-2" />
                           Baixar
                         </Button>

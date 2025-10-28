@@ -189,6 +189,11 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+export interface ApiGenericResponse {
+  statusCode: number;
+  message: string;
+}
+
 export interface UpdateEmailRequest {
   email: string;
 }
@@ -228,3 +233,4 @@ export interface GenereicStats {
   courses: number;
   subjects: number;
 }
+

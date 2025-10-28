@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { GraduationCap, Loader2, Mail, KeyRound, Lock } from 'lucide-react';
+import { Loader2, Mail, KeyRound, Lock, Eye, EyeOff } from 'lucide-react';
 import { authService } from '@/lib/api/services/auth.service';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 
@@ -25,6 +25,8 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
 
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -116,14 +118,8 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="p-3 rounded-lg">
-              <img
-                src="ujc-logo.png"
-                alt="CIDOC Logo"
-                width={100}
-                height={100}
-                className="object-contain"
-              />
+            <div className=" p-3 rounded-lg">
+              <img src="ujc-logo.png" alt="" height={100} width={100} />
             </div>
           </div>
           <CardTitle className="text-2xl">
@@ -241,32 +237,50 @@ export default function ForgotPasswordPage() {
               <div className="space-y-2">
                 <Label htmlFor="new-password">Nova Senha</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground z-10" />
                   <Input
                     id="new-password"
-                    type="password"
+                    type={showNewPassword ? 'text' : 'password'}
                     placeholder="Digite sua nova senha"
                     value={newPassword}
                     onChange={e => setNewPassword(e.target.value)}
                     disabled={isLoading}
-                    className="pl-10"
+                    className="pl-10 pr-10"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  >
+                    {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="confirm-password">Confirmar Senha</Label>
                 <div className="relative">
-                  <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground z-10" />
                   <Input
                     id="confirm-password"
-                    type="password"
+                    type={showConfirmPassword ? 'text' : 'password'}
                     placeholder="Confirme sua nova senha"
                     value={confirmPassword}
                     onChange={e => setConfirmPassword(e.target.value)}
                     disabled={isLoading}
-                    className="pl-10"
+                    className="pl-10 pr-10"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
               </div>
 

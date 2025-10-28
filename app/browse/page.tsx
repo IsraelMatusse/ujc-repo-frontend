@@ -4,10 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, ArrowLeft, GraduationCap, BookOpen } from 'lucide-react';
+import { Search, ArrowLeft, GraduationCap, BookOpen, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { useCourses } from '@/hooks/use-courses';
 import { useAllMaterials } from '@/hooks/use-materials';
+import { getMaterialTypeColor, getMaterialTypeLabel } from '@/lib/utils/material-colors';
 
 export default function BrowsePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,32 +26,32 @@ export default function BrowsePage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
       <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-4 mb-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex items-center gap-2 sm:gap-4 mb-4">
             <Button variant="ghost" size="sm" asChild>
               <Link href="/">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Voltar
+                <span className="hidden sm:inline">Voltar</span>
               </Link>
             </Button>
           </div>
 
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
               Explorar Material
             </h1>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
               Navegue pelo material de estudos organizado por cursos e disciplinas
             </p>
           </div>
 
           {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mt-8">
+          <div className="max-w-2xl mx-auto mt-6 sm:mt-8">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 placeholder="Pesquisar cursos..."
-                className="pl-10 pr-4 py-3 text-lg"
+                className="pl-10 pr-4 py-2 sm:py-3 text-base sm:text-lg"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
               />
@@ -59,14 +60,14 @@ export default function BrowsePage() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Courses Section */}
-        <section className="mb-12">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        <section className="mb-8 sm:mb-12">
+          <div className="mb-4 sm:mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
               Cursos Disponíveis
             </h2>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
               Selecione um curso para explorar o material disponível
             </p>
           </div>
@@ -125,15 +126,19 @@ export default function BrowsePage() {
 
         {/* Recent Materials */}
         <section>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Material Recente</h2>
-              <p className="text-gray-600 dark:text-gray-300">Últimos materiais adicionados</p>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                Material Recente
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
+                Últimos materiais adicionados
+              </p>
             </div>
           </div>
 
           {materialsLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map(i => (
                 <Card key={i} className="animate-pulse">
                   <CardContent className="p-4">
@@ -151,30 +156,35 @@ export default function BrowsePage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {recentMaterials.map((material: any) => (
-                <Card key={material.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-medium text-sm line-clamp-2">{material.title}</h3>
-                      <Badge variant="outline" className="text-xs">
-                        {material.type}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                      {material.subject}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">{material.createdAt}</span>
-                      <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" asChild>
-                        <a href={material.file.path} target="_blank" rel="noopener noreferrer">
-                          Ver
-                        </a>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {recentMaterials.map((material: any) => {
+                const colors = getMaterialTypeColor(material.type);
+                const label = getMaterialTypeLabel(material.type);
+                return (
+                  <Card key={material.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-medium text-sm line-clamp-2 flex-1">
+                          {material.title}
+                        </h3>
+                        <Badge className={`text-xs ml-2 ${colors.badge}`}>{label}</Badge>
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                        {material.subject}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500">{material.createdAt}</span>
+                        <Button size="sm" className={`h-7 px-2 text-xs ${colors.button}`} asChild>
+                          <a href={material.file.path} target="_blank" rel="noopener noreferrer">
+                            <Eye className="h-3 w-3 mr-1" />
+                            Ver
+                          </a>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
         </section>

@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,7 +23,8 @@ import {
 import { useAuth } from '@/contexts/auth-context';
 import Link from 'next/link';
 import { useUploadFile, useCreateMaterial } from '@/hooks/use-materials';
-import { useSubjects, useSubjectsByCourse } from '@/hooks/use-subjects';
+import { useCourses } from '@/hooks/use-courses';
+import { useSubjectsByCourse } from '@/hooks/use-subjects';
 import {
   Select,
   SelectContent,
@@ -31,10 +32,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { MaterialType, SubjectResponse } from '@/lib/api/types';
-import { MaterialType as MaterialTypeEnum } from '@/lib/api/types';
 import { Combobox } from '@/components/ui/combobox';
-import { useCourses } from '@/hooks/use-courses';
+import type { MaterialType } from '@/lib/api/types';
+import { MaterialType as MaterialTypeEnum } from '@/lib/api/types';
 
 export default function UploadPage() {
   const { user } = useAuth();
@@ -43,22 +43,16 @@ export default function UploadPage() {
   const [file, setFile] = useState<UploadFile | null>(null);
   const [uploadedFileId, setUploadedFileId] = useState<string>('');
   const [title, setTitle] = useState('');
-  const [author, setAuthor] = useState('');
   const [description, setDescription] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [materialType, setMaterialType] = useState<MaterialType>(MaterialTypeEnum.OUTRO);
   const [error, setError] = useState('');
-  const [selectedCourse, setSelectedCourse] = useState('');
 
   const uploadFileMutation = useUploadFile();
   const createMaterialMutation = useCreateMaterial();
   const { data: courses = [] } = useCourses();
   const { data: subjects = [] } = useSubjectsByCourse(selectedCourse);
-  useEffect(() => {
-    if (!user) {
-      router.push('/login');
-    }
-  }, [user, router]);
 
   const allowedTypes = [
     'application/pdf',
@@ -159,7 +153,7 @@ export default function UploadPage() {
       setUploadedFileId(response.data.id);
       setStep(2);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao fazer upload do arquivo. Tente novamente.');
+      setError(err.message || 'Erro ao fazer upload do arquivo. Tente novamente.');
     }
   };
 
@@ -169,6 +163,11 @@ export default function UploadPage() {
 
     if (!title.trim()) {
       setError('Título é obrigatório');
+      return;
+    }
+
+    if (!selectedCourse) {
+      setError('Selecione um curso');
       return;
     }
 
@@ -189,14 +188,15 @@ export default function UploadPage() {
         title: title.trim(),
         description: description.trim(),
         type: materialType,
-        author: author,
+        author: user?.fullName || '',
       });
 
       router.push('/upload/success');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao criar material. Tente novamente.');
+      setError(err.message || 'Erro ao criar material. Tente novamente.');
     }
   };
+
   const handleCourseChange = (courseId: string) => {
     setSelectedCourse(courseId);
     setSelectedSubject('');
@@ -204,30 +204,28 @@ export default function UploadPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
       <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-4 mb-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+          <div className="flex items-center gap-2 sm:gap-4 mb-4">
             <Button variant="ghost" size="sm" asChild>
               <Link href="/">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Voltar
+                <span className="hidden sm:inline">Voltar</span>
               </Link>
             </Button>
           </div>
 
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
               Contribuir com Material
             </h1>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
               Partilhe material de estudos com a comunidade acadêmica da UJC
             </p>
           </div>
 
-          {/* Progress Steps */}
-          <div className="flex items-center justify-center gap-4 mt-6">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-2 sm:gap-4 mt-6 overflow-x-auto pb-2">
+            <div className="flex items-center gap-2 whitespace-nowrap">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center ${
                   step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
@@ -235,12 +233,16 @@ export default function UploadPage() {
               >
                 1
               </div>
-              <span className={step >= 1 ? 'text-blue-600 font-medium' : 'text-gray-600'}>
-                Upload do Arquivo
+              <span
+                className={`text-sm sm:text-base ${
+                  step >= 1 ? 'text-blue-600 font-medium' : 'text-gray-600'
+                }`}
+              >
+                Upload
               </span>
             </div>
-            <div className="w-12 h-0.5 bg-gray-300" />
-            <div className="flex items-center gap-2">
+            <div className="w-8 sm:w-12 h-0.5 bg-gray-300" />
+            <div className="flex items-center gap-2 whitespace-nowrap">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center ${
                   step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
@@ -248,35 +250,38 @@ export default function UploadPage() {
               >
                 2
               </div>
-              <span className={step >= 2 ? 'text-blue-600 font-medium' : 'text-gray-600'}>
-                Informações do Material
+              <span
+                className={`text-sm sm:text-base ${
+                  step >= 2 ? 'text-blue-600 font-medium' : 'text-gray-600'
+                }`}
+              >
+                Informações
               </span>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Step 1: File Upload */}
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {step === 1 && (
           <Card>
             <CardHeader>
-              <CardTitle>Passo 1: Upload do Arquivo</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-xl sm:text-2xl">Passo 1: Upload do Arquivo</CardTitle>
+              <CardDescription className="text-sm sm:text-base">
                 Faça upload do seu arquivo (PDF, Word, imagens, vídeos). Máximo 50MB por arquivo.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div
-                className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-blue-400 transition-colors"
+                className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 sm:p-8 text-center hover:border-blue-400 transition-colors"
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
               >
-                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                <Upload className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">
                   Arraste um arquivo aqui ou clique para selecionar
                 </p>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4">
                   Suporta PDF, Word, imagens (JPG, PNG, GIF) e vídeos (MP4, AVI, MOV)
                 </p>
                 <input
@@ -293,7 +298,6 @@ export default function UploadPage() {
                 </Button>
               </div>
 
-              {/* File Preview */}
               {file && (
                 <div className="mt-6">
                   <h4 className="font-medium text-gray-900 dark:text-white mb-3">
@@ -324,7 +328,6 @@ export default function UploadPage() {
                 </div>
               )}
 
-              {/* Error Display */}
               {error && (
                 <Alert variant="destructive" className="mt-4">
                   <AlertCircle className="h-4 w-4" />
@@ -332,7 +335,6 @@ export default function UploadPage() {
                 </Alert>
               )}
 
-              {/* Upload Progress */}
               {uploadFileMutation.isPending && (
                 <div className="mt-6">
                   <div className="space-y-2">
@@ -344,9 +346,12 @@ export default function UploadPage() {
                 </div>
               )}
 
-              {/* Next Button */}
               <div className="flex justify-end mt-6">
-                <Button onClick={handleFileUpload} disabled={!file || uploadFileMutation.isPending}>
+                <Button
+                  onClick={handleFileUpload}
+                  disabled={!file || uploadFileMutation.isPending}
+                  className="w-full sm:w-auto"
+                >
                   {uploadFileMutation.isPending ? 'Enviando...' : 'Próximo'}
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
@@ -355,13 +360,16 @@ export default function UploadPage() {
           </Card>
         )}
 
-        {/* Step 2: Material Information */}
         {step === 2 && (
           <form onSubmit={handleMaterialSubmit} className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Passo 2: Informações do Material</CardTitle>
-                <CardDescription>Descreva o material que está a partilhar</CardDescription>
+                <CardTitle className="text-xl sm:text-2xl">
+                  Passo 2: Informações do Material
+                </CardTitle>
+                <CardDescription className="text-sm sm:text-base">
+                  Descreva o material que está a partilhar
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -383,17 +391,6 @@ export default function UploadPage() {
                     value={description}
                     onChange={e => setDescription(e.target.value)}
                     rows={3}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="title">Autor </Label>
-                  <Input
-                    id="title"
-                    placeholder="Ex: Dr João da Silva"
-                    value={author}
-                    onChange={e => setAuthor(e.target.value)}
-                    required
                   />
                 </div>
 
@@ -457,7 +454,6 @@ export default function UploadPage() {
               </CardContent>
             </Card>
 
-            {/* Error Display */}
             {error && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -465,8 +461,7 @@ export default function UploadPage() {
               </Alert>
             )}
 
-            {/* Submit Buttons */}
-            <div className="flex justify-between gap-4">
+            <div className="flex flex-col sm:flex-row justify-between gap-4">
               <Button
                 type="button"
                 variant="outline"
@@ -474,11 +469,16 @@ export default function UploadPage() {
                   setStep(1);
                   setError('');
                 }}
+                className="w-full sm:w-auto"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Voltar
               </Button>
-              <Button type="submit" disabled={createMaterialMutation.isPending}>
+              <Button
+                type="submit"
+                disabled={createMaterialMutation.isPending}
+                className="w-full sm:w-auto"
+              >
                 {createMaterialMutation.isPending ? 'Criando...' : 'Criar Material'}
               </Button>
             </div>

@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/auth-context';
 import { useUpdateEmail, useUpdatePassword, useUserStats } from '@/hooks/use-users';
-import { Mail, Lock, User, Code, Loader2, Upload, Download } from 'lucide-react';
+import { Mail, Lock, User, Code, Loader2, Upload, Download, Eye, EyeOff } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 export default function ProfilePage() {
@@ -33,6 +33,10 @@ export default function ProfilePage() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   if (!user) {
     return (
@@ -62,13 +66,18 @@ export default function ProfilePage() {
     setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
+    setShowCurrentPassword(false);
+    setShowNewPassword(false);
+    setShowConfirmPassword(false);
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
+    <div className="container mx-auto py-8 space-y-6 px-4">
       <div>
-        <h1 className="text-3xl font-bold">Meu Perfil</h1>
-        <p className="text-muted-foreground">Gerencie suas informações pessoais e configurações</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">Meu Perfil</h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
+          Gerencie suas informações pessoais e configurações
+        </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -80,13 +89,13 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
-                <AvatarFallback className="bg-blue-600 text-white text-2xl">
+              <Avatar className="h-16 w-16 sm:h-20 sm:w-20">
+                <AvatarFallback className="bg-blue-600 text-white text-xl sm:text-2xl">
                   {user.fullName.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h3 className="text-2xl font-semibold">{user.fullName}</h3>
+                <h3 className="text-xl sm:text-2xl font-semibold">{user.fullName}</h3>
                 <Badge variant={user.role === 'ADMIN' ? 'default' : 'secondary'}>
                   {user.role === 'ADMIN' ? 'Administrador' : 'Estudante'}
                 </Badge>
@@ -96,17 +105,17 @@ export default function ProfilePage() {
             <Separator />
 
             <div className="grid gap-4">
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 <div className="bg-blue-100 p-2 rounded-lg">
                   <Mail className="h-5 w-5 text-blue-600" />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <Label className="text-xs text-muted-foreground">Email</Label>
-                  <p className="font-medium">{user.email}</p>
+                  <p className="font-medium break-words">{user.email}</p>
                 </div>
                 <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto bg-transparent">
                       Alterar
                     </Button>
                   </DialogTrigger>
@@ -184,30 +193,72 @@ export default function ProfilePage() {
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="current-password">Senha Atual</Label>
-                      <Input
-                        id="current-password"
-                        type="password"
-                        value={currentPassword}
-                        onChange={e => setCurrentPassword(e.target.value)}
-                      />
+                      <div className="relative">
+                        <Input
+                          id="current-password"
+                          type={showCurrentPassword ? 'text' : 'password'}
+                          value={currentPassword}
+                          onChange={e => setCurrentPassword(e.target.value)}
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                        >
+                          {showCurrentPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="new-password">Nova Senha</Label>
-                      <Input
-                        id="new-password"
-                        type="password"
-                        value={newPassword}
-                        onChange={e => setNewPassword(e.target.value)}
-                      />
+                      <div className="relative">
+                        <Input
+                          id="new-password"
+                          type={showNewPassword ? 'text' : 'password'}
+                          value={newPassword}
+                          onChange={e => setNewPassword(e.target.value)}
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                        >
+                          {showNewPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="confirm-password">Confirmar Nova Senha</Label>
-                      <Input
-                        id="confirm-password"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={e => setConfirmPassword(e.target.value)}
-                      />
+                      <div className="relative">
+                        <Input
+                          id="confirm-password"
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          value={confirmPassword}
+                          onChange={e => setConfirmPassword(e.target.value)}
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                     {newPassword && confirmPassword && newPassword !== confirmPassword && (
                       <p className="text-sm text-red-600">As senhas não coincidem</p>
