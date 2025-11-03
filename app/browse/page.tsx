@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { useCourses } from '@/hooks/use-courses';
 import { useAllMaterials } from '@/hooks/use-materials';
 import { getMaterialTypeColor, getMaterialTypeLabel } from '@/lib/utils/material-colors';
+import { MaterialResponse } from '@/lib/api/types';
 
 export default function BrowsePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,6 +22,15 @@ export default function BrowsePage() {
   const filteredCourses = courses.filter(course =>
     course.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
+  const isVideoMaterial = (material: MaterialResponse): boolean => {
+    if (material.type === 'VIDEO_AULA') return true;
+
+    const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi'];
+    const filePath = material.file.path.toLowerCase();
+    const fileType = material.file.type.toLowerCase();
+
+    return videoExtensions.some(ext => filePath.endsWith(ext)) || fileType.includes('video');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
@@ -157,9 +167,11 @@ export default function BrowsePage() {
             </Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {recentMaterials.map((material: any) => {
+              {recentMaterials.map((material: MaterialResponse) => {
                 const colors = getMaterialTypeColor(material.type);
                 const label = getMaterialTypeLabel(material.type);
+                const isVideo = isVideoMaterial(material);
+
                 return (
                   <Card key={material.id} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-4">
@@ -174,12 +186,26 @@ export default function BrowsePage() {
                       </p>
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">{material.createdAt}</span>
-                        <Button size="sm" className={`h-7 px-2 text-xs ${colors.button}`} asChild>
-                          <a href={material.file.path} target="_blank" rel="noopener noreferrer">
-                            <Eye className="h-3 w-3 mr-1" />
-                            Ver
-                          </a>
-                        </Button>
+
+                        {isVideo ? (
+                          <Button size="sm" className={`h-7 px-2 text-xs ${colors.button}`} asChild>
+                            <Link
+                              href={`/video?src=${encodeURIComponent(
+                                material.file.path,
+                              )}&title=${encodeURIComponent(material.title)}&id=${material.id}`}
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              Ver
+                            </Link>
+                          </Button>
+                        ) : (
+                          <Button size="sm" className={`h-7 px-2 text-xs ${colors.button}`} asChild>
+                            <a href={material.file.path} target="_blank" rel="noopener noreferrer">
+                              <Eye className="h-3 w-3 mr-1" />
+                              Ver
+                            </a>
+                          </Button>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
