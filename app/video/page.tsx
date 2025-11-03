@@ -3,8 +3,9 @@
 import Video from 'next-video';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Share2, Bookmark } from 'lucide-react';
+import { Suspense } from 'react';
 
-export default function VideoPage() {
+function VideoContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -24,11 +25,13 @@ export default function VideoPage() {
           <span>Voltar aos materiais</span>
         </button>
 
+        {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">{videoTitle}</h1>
           <p className="text-gray-400 text-lg">Assista ao conteúdo completo abaixo</p>
         </div>
 
+        {/* Video Container */}
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl shadow-2xl p-6 md:p-8">
           <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-xl">
             <Video src={videoSrc} className="w-full h-full" controls />
@@ -85,5 +88,24 @@ export default function VideoPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function VideoPageLoading() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-12 px-4 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+        <p className="text-gray-400">Carregando vídeo...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function VideoPage() {
+  return (
+    <Suspense fallback={<VideoPageLoading />}>
+      <VideoContent />
+    </Suspense>
   );
 }
