@@ -10,11 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-<<<<<<< HEAD
 import { Loader2, Mail, KeyRound, Lock, Eye, EyeOff } from 'lucide-react';
-=======
-import { GraduationCap, Loader2, Mail, KeyRound, Lock, Eye, EyeOff } from 'lucide-react';
->>>>>>> 92de26f (feat: enhance user experience with password visibility toggle in login and forgot password pages)
 import { authService } from '@/lib/api/services/auth.service';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 
@@ -122,13 +118,8 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-<<<<<<< HEAD
             <div className=" p-3 rounded-lg">
               <img src="ujc-logo.png" alt="" height={100} width={100} />
-=======
-            <div className="bg-blue-600 p-3 rounded-lg">
-              <GraduationCap className="h-8 w-8 text-white" />
->>>>>>> 92de26f (feat: enhance user experience with password visibility toggle in login and forgot password pages)
             </div>
           </div>
           <CardTitle className="text-2xl">
