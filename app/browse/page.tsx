@@ -9,11 +9,7 @@ import Link from 'next/link';
 import { useCourses } from '@/hooks/use-courses';
 import { useAllMaterials } from '@/hooks/use-materials';
 import { getMaterialTypeColor, getMaterialTypeLabel } from '@/lib/utils/material-colors';
-<<<<<<< HEAD
 import { MaterialResponse } from '@/lib/api/types';
-=======
->>>>>>> 92de26f (feat: enhance user experience with password visibility toggle in login and forgot password pages)
-
 export default function BrowsePage() {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -170,17 +166,11 @@ export default function BrowsePage() {
             </Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-<<<<<<< HEAD
               {recentMaterials.map((material: MaterialResponse) => {
                 const colors = getMaterialTypeColor(material.type);
                 const label = getMaterialTypeLabel(material.type);
                 const isVideo = isVideoMaterial(material);
 
-=======
-              {recentMaterials.map((material: any) => {
-                const colors = getMaterialTypeColor(material.type);
-                const label = getMaterialTypeLabel(material.type);
->>>>>>> 92de26f (feat: enhance user experience with password visibility toggle in login and forgot password pages)
                 return (
                   <Card key={material.id} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-4">
@@ -195,7 +185,6 @@ export default function BrowsePage() {
                       </p>
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-gray-500">{material.createdAt}</span>
-<<<<<<< HEAD
 
                         {isVideo ? (
                           <Button size="sm" className={`h-7 px-2 text-xs ${colors.button}`} asChild>
@@ -216,14 +205,6 @@ export default function BrowsePage() {
                             </a>
                           </Button>
                         )}
-=======
-                        <Button size="sm" className={`h-7 px-2 text-xs ${colors.button}`} asChild>
-                          <a href={material.file.path} target="_blank" rel="noopener noreferrer">
-                            <Eye className="h-3 w-3 mr-1" />
-                            Ver
-                          </a>
-                        </Button>
->>>>>>> 92de26f (feat: enhance user experience with password visibility toggle in login and forgot password pages)
                       </div>
                     </CardContent>
                   </Card>
