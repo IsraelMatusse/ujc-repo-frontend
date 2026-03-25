@@ -10,7 +10,6 @@ import { useCourses } from '@/hooks/use-courses';
 import { useAllMaterials } from '@/hooks/use-materials';
 import { getMaterialTypeColor, getMaterialTypeLabel } from '@/lib/utils/material-colors';
 import { MaterialResponse } from '@/lib/api/types';
-
 export default function BrowsePage() {
   const [searchQuery, setSearchQuery] = useState('');
 
