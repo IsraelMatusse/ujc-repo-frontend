@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { GraduationCap, Loader2, Eye, EyeOff } from 'lucide-react';
+<<<<<<< HEAD
 import { useAuth } from '@/contexts/auth-context';
 
 export default function LoginPage() {
@@ -20,6 +21,17 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const { login, isLoading } = useAuth();
   const router = useRouter();
+=======
+import { useAuth } from "@/contexts/auth-context"
+
+export default function LoginPage() {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("")
+  const { login, isLoading } = useAuth()
+  const router = useRouter()
+>>>>>>> 92de26f (feat: enhance user experience with password visibility toggle in login and forgot password pages)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,8 +59,13 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
+<<<<<<< HEAD
             <div className=" p-3 rounded-lg">
               <img src="ujc-logo.png" alt="" height={100} width={100} />
+=======
+            <div className="bg-blue-600 p-3 rounded-lg">
+              <GraduationCap className="h-8 w-8 text-white" />
+>>>>>>> 92de26f (feat: enhance user experience with password visibility toggle in login and forgot password pages)
             </div>
           </div>
           <CardTitle className="text-2xl">Entrar no Sistema</CardTitle>
