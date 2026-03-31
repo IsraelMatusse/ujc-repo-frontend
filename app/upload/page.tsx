@@ -479,7 +479,7 @@ export default function UploadPage() {
                 disabled={createMaterialMutation.isPending}
                 className="w-full sm:w-auto"
               >
-                {createMaterialMutation.isPending ? 'Criando...' : 'Criar Material'}
+                {createMaterialMutation.isPending ? 'Criando...' : 'Registar Material'}
               </Button>
             </div>
           </form>

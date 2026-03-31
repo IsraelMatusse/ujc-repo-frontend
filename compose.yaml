@@ -1,0 +1,20 @@
+services:
+  ujc_repo_front:
+    container_name: ujc_repo_front
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: "https://api.repositorio.ujc.ac.mz/v1"
+    restart: always
+    ports:
+      - "3001:3001"
+      - "443:443"
+    volumes:
+      - ./certbot:/var/www/certbot
+      - ./ssl:/etc/nginx/ssl
+    env_file:
+      - .env
+    environment:
+       NODE_ENV: production
+       API_BASE_URL: https://api.repositorio.ujc.ac.mz/v1

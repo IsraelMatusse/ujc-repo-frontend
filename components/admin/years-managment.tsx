@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,10 +12,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Calendar } from 'lucide-react';
-import { useYears, useCreateYear, useUpdateYear, useDeleteYear } from '@/hooks/use-years';
-import { toast } from 'sonner';
-import type { YearCreationData } from '@/lib/api/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +22,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Plus, Edit, Trash2, Search, Calendar } from 'lucide-react';
+import { useYears, useCreateYear, useUpdateYear, useDeleteYear } from '@/hooks/use-years';
+import { toast } from 'sonner';
+import type { YearCreationData } from '@/lib/api/types';
 
 export function YearsManagement() {
   const { data: years, isLoading } = useYears();
@@ -34,6 +41,7 @@ export function YearsManagement() {
   const updateYear = useUpdateYear();
   const deleteYear = useDeleteYear();
 
+  const [search, setSearch] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingYear, setEditingYear] = useState<{
@@ -44,14 +52,20 @@ export function YearsManagement() {
   const [formData, setFormData] = useState<YearCreationData>({ name: '', order: 1 });
   const [yearToDelete, setYearToDelete] = useState<string | null>(null);
 
+  const filtered = useMemo(() => {
+    if (!years) return [];
+    const q = search.toLowerCase();
+    return years.filter(y => y.name.toLowerCase().includes(q) || String(y.order).includes(q));
+  }, [years, search]);
+
   const handleCreate = async () => {
     try {
       await createYear.mutateAsync(formData);
-      toast.success('Ano acadêmico criado com sucesso!');
+      toast.success('Ano académico criado com sucesso!');
       setIsAddDialogOpen(false);
       setFormData({ name: '', order: 1 });
-    } catch (error) {
-      toast.error('Erro ao criar ano acadêmico');
+    } catch {
+      toast.error('Erro ao criar ano académico');
     }
   };
 
@@ -59,11 +73,11 @@ export function YearsManagement() {
     if (!editingYear) return;
     try {
       await updateYear.mutateAsync({ id: editingYear.id, data: formData });
-      toast.success('Ano acadêmico atualizado com sucesso!');
+      toast.success('Ano académico actualizado com sucesso!');
       setIsEditDialogOpen(false);
       setEditingYear(null);
-    } catch (error) {
-      toast.error('Erro ao atualizar ano acadêmico');
+    } catch {
+      toast.error('Erro ao actualizar ano académico');
     }
   };
 
@@ -72,7 +86,7 @@ export function YearsManagement() {
     try {
       await deleteYear.mutateAsync(yearToDelete);
       setYearToDelete(null);
-    } catch (error) {
+    } catch {
       // Error handled by hook
     }
   };
@@ -83,15 +97,11 @@ export function YearsManagement() {
     setIsEditDialogOpen(true);
   };
 
-  if (isLoading) {
-    return <div className="text-center py-8">Carregando...</div>;
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-lg font-semibold">Gestão de Anos Acadêmicos</h3>
+          <h3 className="text-lg font-semibold">Gestão de Anos Académicos</h3>
           <p className="text-sm text-muted-foreground">Criar e gerir anos do curso</p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -103,8 +113,8 @@ export function YearsManagement() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Adicionar Ano Acadêmico</DialogTitle>
-              <DialogDescription>Criar um novo ano acadêmico no sistema</DialogDescription>
+              <DialogTitle>Adicionar Ano Académico</DialogTitle>
+              <DialogDescription>Criar um novo ano académico no sistema</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
@@ -141,56 +151,99 @@ export function YearsManagement() {
         </Dialog>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {years?.map(year => (
-          <Card key={year.id}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-blue-600" />
-                {year.name}
-              </CardTitle>
-              <CardDescription>Ordem: {year.order}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => openEditDialog(year)}
-                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setYearToDelete(year.id)}
-                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Search */}
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Pesquisar por nome ou ordem..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="pl-9"
+        />
       </div>
 
-      {years?.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-12">
-            <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-muted-foreground">Nenhum ano acadêmico cadastrado</p>
-            <p className="text-sm text-muted-foreground">Clique em "Novo Ano" para começar</p>
-          </CardContent>
-        </Card>
-      )}
+      {/* Table */}
+      <div className="rounded-lg border border-border overflow-hidden shadow-sm">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/60 hover:bg-muted/60">
+              <TableHead className="font-semibold text-foreground py-3 pl-4 w-10">#</TableHead>
+              <TableHead className="font-semibold text-foreground py-3">Nome</TableHead>
+              <TableHead className="font-semibold text-foreground py-3">Ordem</TableHead>
+              <TableHead className="font-semibold text-foreground py-3 pr-4 text-right">
+                Acções
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-10 text-muted-foreground">
+                  Carregando...
+                </TableCell>
+              </TableRow>
+            ) : filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-10 text-muted-foreground">
+                  <Calendar className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                  <p className="text-sm">
+                    {search ? 'Nenhum resultado encontrado' : 'Nenhum ano académico cadastrado'}
+                  </p>
+                </TableCell>
+              </TableRow>
+            ) : (
+              filtered.map((year, index) => (
+                <TableRow
+                  key={year.id}
+                  className="border-t border-border hover:bg-blue-50/40 transition-colors"
+                >
+                  <TableCell className="py-3 pl-4 text-muted-foreground text-sm">
+                    {index + 1}
+                  </TableCell>
+                  <TableCell className="py-3 font-medium">{year.name}</TableCell>
+                  <TableCell className="py-3">
+                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">
+                      {year.order}º
+                    </span>
+                  </TableCell>
+                  <TableCell className="py-3 pr-4 text-right">
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openEditDialog(year)}
+                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 h-8 w-8 p-0"
+                      >
+                        <Edit className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setYearToDelete(year.id)}
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8 w-8 p-0"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+        {filtered.length > 0 && (
+          <div className="border-t border-border bg-muted/30 px-4 py-2 text-xs text-muted-foreground">
+            {filtered.length} {filtered.length === 1 ? 'ano encontrado' : 'anos encontrados'}
+          </div>
+        )}
+      </div>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Editar Ano Acadêmico</DialogTitle>
-            <DialogDescription>Atualizar informações do ano acadêmico</DialogDescription>
+            <DialogTitle>Editar Ano Académico</DialogTitle>
+            <DialogDescription>Actualizar informações do ano académico</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -217,7 +270,7 @@ export function YearsManagement() {
                 Cancelar
               </Button>
               <Button onClick={handleUpdate} disabled={updateYear.isPending}>
-                {updateYear.isPending ? 'Atualizando...' : 'Atualizar'}
+                {updateYear.isPending ? 'Actualizando...' : 'Actualizar'}
               </Button>
             </div>
           </div>
@@ -229,14 +282,14 @@ export function YearsManagement() {
           <AlertDialogHeader>
             <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O ano acadêmico será permanentemente removido do
+              Esta acção não pode ser desfeita. O ano académico será permanentemente removido do
               sistema.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-              Deletar
+              Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

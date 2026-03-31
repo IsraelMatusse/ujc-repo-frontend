@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,23 +13,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Plus, Edit, Trash2, Layers } from 'lucide-react';
-import {
-  useSemesters,
-  useCreateSemester,
-  useUpdateSemester,
-  useDeleteSemester,
-} from '@/hooks/use-semesters';
-import { useYears } from '@/hooks/use-years';
-import { toast } from 'sonner';
-import type { SemesterCreationData } from '@/lib/api/types';
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -40,6 +22,31 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Plus, Edit, Trash2, Search, Layers, X } from 'lucide-react';
+import {
+  useSemesters,
+  useCreateSemester,
+  useUpdateSemester,
+  useDeleteSemester,
+} from '@/hooks/use-semesters';
+import { useYears } from '@/hooks/use-years';
+import { toast } from 'sonner';
+import type { SemesterCreationData } from '@/lib/api/types';
 
 export function SemestersManagement() {
   const { data: semesters, isLoading } = useSemesters();
@@ -48,6 +55,9 @@ export function SemestersManagement() {
   const updateSemester = useUpdateSemester();
   const deleteSemester = useDeleteSemester();
 
+  const [search, setSearch] = useState('');
+  // undefined = sem filtro activo (evita passar string vazia ao Select)
+  const [filterYearId, setFilterYearId] = useState<string | undefined>(undefined);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingSemester, setEditingSemester] = useState<{
@@ -58,13 +68,26 @@ export function SemestersManagement() {
   const [formData, setFormData] = useState<SemesterCreationData>({ name: '', yearId: '' });
   const [semesterToDelete, setSemesterToDelete] = useState<string | null>(null);
 
+  const getYearName = (yearId: string) => years?.find(y => y.id === yearId)?.name || 'N/A';
+
+  const filtered = useMemo(() => {
+    if (!semesters) return [];
+    return semesters.filter(s => {
+      const matchesSearch =
+        s.name.toLowerCase().includes(search.toLowerCase()) ||
+        getYearName(s.yearId).toLowerCase().includes(search.toLowerCase());
+      const matchesYear = !filterYearId || s.yearId === filterYearId;
+      return matchesSearch && matchesYear;
+    });
+  }, [semesters, search, filterYearId, years]);
+
   const handleCreate = async () => {
     try {
       await createSemester.mutateAsync(formData);
       toast.success('Semestre criado com sucesso!');
       setIsAddDialogOpen(false);
       setFormData({ name: '', yearId: '' });
-    } catch (error) {
+    } catch {
       toast.error('Erro ao criar semestre');
     }
   };
@@ -73,11 +96,11 @@ export function SemestersManagement() {
     if (!editingSemester) return;
     try {
       await updateSemester.mutateAsync({ id: editingSemester.id, data: formData });
-      toast.success('Semestre atualizado com sucesso!');
+      toast.success('Semestre actualizado com sucesso!');
       setIsEditDialogOpen(false);
       setEditingSemester(null);
-    } catch (error) {
-      toast.error('Erro ao atualizar semestre');
+    } catch {
+      toast.error('Erro ao actualizar semestre');
     }
   };
 
@@ -86,7 +109,7 @@ export function SemestersManagement() {
     try {
       await deleteSemester.mutateAsync(semesterToDelete);
       setSemesterToDelete(null);
-    } catch (error) {
+    } catch {
       // Error handled by hook
     }
   };
@@ -96,14 +119,6 @@ export function SemestersManagement() {
     setFormData({ name: semester.name, yearId: semester.yearId });
     setIsEditDialogOpen(true);
   };
-
-  const getYearName = (yearId: string) => {
-    return years?.find(y => y.id === yearId)?.name || 'N/A';
-  };
-
-  if (isLoading) {
-    return <div className="text-center py-8">Carregando...</div>;
-  }
 
   return (
     <div className="space-y-4">
@@ -135,9 +150,10 @@ export function SemestersManagement() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="semester-year">Ano Acadêmico</Label>
+                <Label>Ano Académico</Label>
+                {/* value nunca é string vazia — usa undefined para mostrar placeholder */}
                 <Select
-                  value={formData.yearId}
+                  value={formData.yearId || undefined}
                   onValueChange={value => setFormData({ ...formData, yearId: value })}
                 >
                   <SelectTrigger>
@@ -165,56 +181,131 @@ export function SemestersManagement() {
         </Dialog>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {semesters?.map(semester => (
-          <Card key={semester.id}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Layers className="h-5 w-5 text-blue-600" />
-                {semester.name}
-              </CardTitle>
-              <CardDescription>Ano: {getYearName(semester.yearId)}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => openEditDialog(semester)}
-                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSemesterToDelete(semester.id)}
-                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Filters */}
+      <div className="flex gap-3 flex-wrap">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Pesquisar por nome..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          {/* Dropdown de filtro sem opção com value="" */}
+          <Select value={filterYearId} onValueChange={v => setFilterYearId(v)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filtrar por ano" />
+            </SelectTrigger>
+            <SelectContent>
+              {years?.map(year => (
+                <SelectItem key={year.id} value={year.id}>
+                  {year.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {/* Botão X para limpar o filtro em vez de SelectItem vazio */}
+          {filterYearId && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setFilterYearId(undefined)}
+              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
+              title="Limpar filtro"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
 
-      {semesters?.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-12">
-            <Layers className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-muted-foreground">Nenhum semestre cadastrado</p>
-            <p className="text-sm text-muted-foreground">Clique em "Novo Semestre" para começar</p>
-          </CardContent>
-        </Card>
-      )}
+      {/* Table */}
+      <div className="rounded-lg border border-border overflow-hidden shadow-sm">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/60 hover:bg-muted/60">
+              <TableHead className="font-semibold text-foreground py-3 pl-4 w-10">#</TableHead>
+              <TableHead className="font-semibold text-foreground py-3">Nome</TableHead>
+              <TableHead className="font-semibold text-foreground py-3">Ano Académico</TableHead>
+              <TableHead className="font-semibold text-foreground py-3 pr-4 text-right">
+                Acções
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-10 text-muted-foreground">
+                  Carregando...
+                </TableCell>
+              </TableRow>
+            ) : filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-10 text-muted-foreground">
+                  <Layers className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                  <p className="text-sm">
+                    {search || filterYearId
+                      ? 'Nenhum resultado encontrado'
+                      : 'Nenhum semestre cadastrado'}
+                  </p>
+                </TableCell>
+              </TableRow>
+            ) : (
+              filtered.map((semester, index) => (
+                <TableRow
+                  key={semester.id}
+                  className="border-t border-border hover:bg-blue-50/40 transition-colors"
+                >
+                  <TableCell className="py-3 pl-4 text-muted-foreground text-sm">
+                    {index + 1}
+                  </TableCell>
+                  <TableCell className="py-3 font-medium">{semester.name}</TableCell>
+                  <TableCell className="py-3">
+                    <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">
+                      {getYearName(semester.yearId)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="py-3 pr-4 text-right">
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openEditDialog(semester)}
+                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 h-8 w-8 p-0"
+                      >
+                        <Edit className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSemesterToDelete(semester.id)}
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8 w-8 p-0"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+        {filtered.length > 0 && (
+          <div className="border-t border-border bg-muted/30 px-4 py-2 text-xs text-muted-foreground">
+            {filtered.length}{' '}
+            {filtered.length === 1 ? 'semestre encontrado' : 'semestres encontrados'}
+          </div>
+        )}
+      </div>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Editar Semestre</DialogTitle>
-            <DialogDescription>Atualizar informações do semestre</DialogDescription>
+            <DialogDescription>Actualizar informações do semestre</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -227,9 +318,9 @@ export function SemestersManagement() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-semester-year">Ano Acadêmico</Label>
+              <Label>Ano Académico</Label>
               <Select
-                value={formData.yearId}
+                value={formData.yearId || undefined}
                 onValueChange={value => setFormData({ ...formData, yearId: value })}
               >
                 <SelectTrigger>
@@ -249,26 +340,25 @@ export function SemestersManagement() {
                 Cancelar
               </Button>
               <Button onClick={handleUpdate} disabled={updateSemester.isPending}>
-                {updateSemester.isPending ? 'Atualizando...' : 'Atualizar'}
+                {updateSemester.isPending ? 'Actualizando...' : 'Actualizar'}
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!semesterToDelete} onOpenChange={() => setSemesterToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O semestre será permanentemente removido do sistema.
+              Esta acção não pode ser desfeita. O semestre será permanentemente removido do sistema.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-              Deletar
+              Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
