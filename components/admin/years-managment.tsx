@@ -165,7 +165,7 @@ export function YearsManagement() {
       {/* Table */}
       <div className="rounded-lg border border-border overflow-hidden shadow-sm">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-blue-100 dark:bg-blue-900">
             <TableRow className="bg-muted/60 hover:bg-muted/60">
               <TableHead className="font-semibold text-foreground py-3 pl-4 w-10">#</TableHead>
               <TableHead className="font-semibold text-foreground py-3">Nome</TableHead>

@@ -9,12 +9,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Upload, User, Settings, LogOut } from "lucide-react"
+import { Upload, User, Settings, LogOut, BookOpen } from 'lucide-react';
 import { useAuth } from "@/contexts/auth-context"
 import Link from "next/link"
 
+const roleLabel: Record<string, string> = {
+  ADMIN: 'Administrador',
+  TEACHER: 'Docente',
+  USER: 'Estudante',
+};
+
 export function AuthHeader() {
-  const { user, logout } = useAuth()
+  const { user, logout } = useAuth();
 
   if (!user) {
     return (
@@ -29,7 +35,7 @@ export function AuthHeader() {
           <Link href="/login">Entrar</Link>
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -45,7 +51,15 @@ export function AuthHeader() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-blue-600 text-white">
+              <AvatarFallback
+                className={
+                  user.role === 'ADMIN'
+                    ? 'bg-blue-600 text-white'
+                    : user.role === 'DOCENTE'
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-gray-600 text-white'
+                }
+              >
                 {user.fullName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -56,9 +70,7 @@ export function AuthHeader() {
             <div className="flex flex-col space-y-1 leading-none">
               <p className="font-medium">{user.fullName}</p>
               <p className="w-[200px] truncate text-sm text-muted-foreground">{user.email}</p>
-              <p className="text-xs text-muted-foreground capitalize">
-                {user.role === "ADMIN" ? "Administrador" : "Estudante"}
-              </p>
+              <p className="text-xs text-muted-foreground">{roleLabel[user.role] ?? user.role}</p>
             </div>
           </div>
           <DropdownMenuSeparator />
@@ -68,11 +80,19 @@ export function AuthHeader() {
               Perfil
             </Link>
           </DropdownMenuItem>
-          {user.role === "ADMIN" && (
+          {user.role === 'ADMIN' && (
             <DropdownMenuItem asChild>
               <Link href="/admin">
                 <Settings className="mr-2 h-4 w-4" />
                 Administração
+              </Link>
+            </DropdownMenuItem>
+          )}
+          {user.role === 'DOCENTE' && (
+            <DropdownMenuItem asChild>
+              <Link href="/teacher">
+                <BookOpen className="mr-2 h-4 w-4" />
+                Área do Docente
               </Link>
             </DropdownMenuItem>
           )}
@@ -84,5 +104,5 @@ export function AuthHeader() {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  )
+  );
 }

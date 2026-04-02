@@ -10,13 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { GraduationCap, Loader2 } from "lucide-react"
+import { Loader2 } from 'lucide-react';
 import { useAuth } from "@/contexts/auth-context"
 
 export default function RegisterPage() {
   const [fullName, setFullName] = useState("")
-  const [email, setEmail] = useState("")
-  const [code, setCode] = useState("")
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
@@ -62,7 +61,7 @@ export default function RegisterPage() {
             <div className="p-3 rounded-lg ">
               <img
                 src="ujc-logo.png"
-                alt="CIDOC Logo"
+                alt="ujc Logo"
                 width={180}
                 height={180}
                 className="object-contain"

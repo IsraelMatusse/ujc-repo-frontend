@@ -27,6 +27,7 @@ import { useMaterial, useAllMaterials } from '@/hooks/use-materials';
 import { useDeleteMaterial } from '@/hooks/use-admin';
 import { Search, Trash2, Download, Eye } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getMaterialTypeColor } from '@/lib/utils/material-colors';
 
 export default function MaterialsPage() {
   const { data: materials, isLoading } = useAllMaterials();
@@ -102,7 +103,9 @@ export default function MaterialsPage() {
                 <TableRow key={material.id}>
                   <TableCell className="font-medium">{material.title || 'Sem título'}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{material.type}</Badge>
+                    <Badge variant="outline" className={getMaterialTypeColor(material.type).badge}>
+                      {material.type}
+                    </Badge>
                   </TableCell>
                   <TableCell>{material.subject}</TableCell>
                   <TableCell>{material.author || 'Anônimo'}</TableCell>

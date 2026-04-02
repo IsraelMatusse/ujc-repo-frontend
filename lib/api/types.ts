@@ -182,7 +182,7 @@ export interface User {
   id: string;
   fullName: string;
   email: string;
-  role: 'USER' | 'ADMIN';
+  role: 'USER' | 'ADMIN' | 'DOCENTE';
   code: string;
   status: boolean;
   createdAt: string;

@@ -40,7 +40,7 @@ export interface Material {
 export interface User {
   id: string;
   email: string;
-  role: 'ADMIN' | 'USER';
+  role: 'ADMIN' | 'USER' | 'DOCENTE';
   yearId?: string;
   fullName: string;
   code: string;
